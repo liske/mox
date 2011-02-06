@@ -264,15 +264,17 @@ sub InPresence {
 
     return unless(scalar grep {$presence->GetFrom() =~ /$_/} @mox_jids);
 
-    my $from = $presence->GetFrom();
-    my $type = $presence->GetType();
-    my $status = $presence->GetStatus();
-    print "===\n";
-    print "Presence\n";
-    print "  From $from\n";
-    print "  Type: $type\n";
-    print "  Status: $status\n";
-    print "===\n";
-    print $presence->GetXML(),"\n";
-    print "===\n";
+    my $path = $mox_conf{'hooks'}.$presence->GetShow().'.d';
+    if(-d $path && -r $path) {
+	$logger->info("run-parts $path");
+
+	$ENV{'MOX_FROM'} = $presence->GetFrom();
+	$ENV{'MOX_SHOW'} = $presence->GetShow();
+	$ENV{'MOX_STATUS'} = $presence->GetStatus();
+
+	system("run-parts '$path'");
+    }
+    else {
+	$logger->notice("presence hook directory not readable: $path");
+    }
 }
