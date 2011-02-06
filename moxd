@@ -262,7 +262,7 @@ sub InPresence {
     my $sid = shift;
     my $presence = shift;
 
-    return unless(scalar grep {$presence->GetFrom() eq $_} @mox_jids);
+    return unless(scalar grep {$presence->GetFrom() =~ /$_/} @mox_jids);
 
     my $from = $presence->GetFrom();
     my $type = $presence->GetType();
